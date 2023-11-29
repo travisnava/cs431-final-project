@@ -125,26 +125,12 @@ def displayAdminMainMenu():
     print("  2. Search for a movie theater")
     print("  3. Delete movie theater by ID")
     print("  4. View all movies playing at a movie theater")
-    print(
-        "  5. View a list of all movies now playing at a movie theater sorted by release date"
-    )
-    print(
-        "  6. View a list of movies with the highest average ratings, along with the theaters where they are currently playing"
-    )
-    print("  7. Add a new movie")
-    print("  8. Update a movie's information")
-    print("  9. Delete movie by ID")
-    print(
-        "  10. Buy a ticket for a movie screening"
-    )  # Transaction that uses rollback, not sure how to implement... query #12 from Stage 3, replaces query #4 from Stage 3
-    print("  11. Create a new screening for a movie at a theater")
-    print("  12. Delete movie screening by ID")
-    print("  13. Cancel a booking for a movie screening")
-    print("  14. Search for concessions at a movie theater")
-    print("  15. View a list of all movie ratings given by a specific customer")
-    print(
-        "  16. Leave a rating for a movie that you've seen"
-    )  # The SQL needs to be edited for this...
+    print("  5. Add a new movie")
+    print("  6. Update a movie's information")
+    print("  7. Delete movie by ID")
+    print("  8. Create a new screening for a movie at a theater")
+    print("  9. Delete movie screening by ID")
+    print("  10. Search for concessions at a movie theater")
     printLine()
 
 
