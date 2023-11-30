@@ -1,6 +1,8 @@
 import mysql.connector
 import os
 import getpass
+from datetime import date
+from datetime import datetime
 
 
 mydb = mysql.connector.connect(host="localhost", user="root", passwd="clashroyale5%")
@@ -20,6 +22,17 @@ reset_code = "\033[0m"
 def initDB():
     mycursor = mydb.cursor()
     mycursor.execute("USE sampleDB")
+
+
+def exit():
+    n = int(input(" Press 5 to exit : "))
+
+    if n == 5:
+        os.system("cls")  # For Windows
+        run()
+    else:
+        print(" Invalid Option")
+        exit()
 
 
 def printLine():
@@ -115,6 +128,7 @@ def displayUserMainMenu():
     print(
         "  10. Leave a rating for a movie that you've seen"
     )  # The SQL needs to be edited for this...
+    print("  11. Exit")
     printLine()
 
 
@@ -131,7 +145,122 @@ def displayAdminMainMenu():
     print("  8. Create a new screening for a movie at a theater")
     print("  9. Delete movie screening by ID")
     print("  10. Search for concessions at a movie theater")
+    print("  11. Exit")
     printLine()
+
+
+def getAllMovieTheaters():
+    mycursor = mydb.cursor()
+    print("------ All Theaters ------\n")
+    mycursor.execute("SELECT * FROM MovieTheaters")
+    theaterList = mycursor.fetchall()
+
+    for theater in theaterList:
+        print(" -----", theater[1], "-----")
+        print(" Location : ", theater[2])
+        print(" Capacity : ", theater[3])
+        print("\n")
+
+    print("------ SUCCESS ------\n")
+    exit()
+
+
+# needs error handling for nonexistent ID selected
+def deleteTheaterByID():
+    mycursor = mydb.cursor()
+    mycursor.execute("SELECT * FROM MovieTheaters")
+    theaterList = mycursor.fetchall()
+    print("Theater ID | Theater Name")
+    for theater in theaterList:
+        printLine()
+        print(str(theater[0]) + "|" + theater[1])
+    printLine()
+    deleteThisTheater = int(
+        input("\nEnter the theater id of the movie theater you wish to delete: ")
+    )
+    query = "DELETE FROM MovieTheaters WHERE theater_id = %s"
+    mycursor.execute(query, (deleteThisTheater,))
+    os.system("cls")
+    mydb.commit()
+    mycursor.execute("SELECT * FROM MovieTheaters")
+    theaterList = mycursor.fetchall()
+    print("Theater ID | Theater Name")
+    for theater in theaterList:
+        printLine()
+        print(str(theater[0]) + "|" + theater[1])
+    mycursor.close()
+
+
+# needs error handling for release date format and movie_name & description are correct type?
+def addNewMovie():
+    movie_name = input("Enter the movie name: ")
+    movie_description = input("Enter the movie's description: ")
+    release_date = input("Enter a release date in the format of YYYY-MM-DD: ")
+    query = "INSERT INTO Movies (movie_name, movie_description, release_date) VALUES (%s, %s, %s)"
+    values = (movie_name, movie_description, release_date)
+    mycursor = mydb.cursor()
+    mycursor.execute(query, values)
+    mydb.commit()
+    mycursor.close()
+
+
+def updateMovieByID():
+    mycursor = mydb.cursor()
+    # Displaying current movies table
+    mycursor.execute("SELECT * FROM Movies")
+    moviesList = mycursor.fetchall()
+    print("Movie ID | Movie Title | Movie Description | Release Date")
+    for movie in moviesList:
+        printLine()
+        print(
+            str(movie[0])
+            + "|"
+            + movie[1]
+            + "|"
+            + movie[2]
+            + "|"
+            + movie[3].strftime("%Y-%m-%d")
+        )
+    printLine()
+
+    # Prompting user for updated movie information
+    # Wrap in a try catch block to prevent incorrect release date format? Can catch value error...
+    movie_id_to_update = input(
+        "\nEnter the movie id for the movie you wish to update: "
+    )
+    updated_title = input("Enter the updated movie title: ")
+    updated_description = input("Enter the updated movie description: ")
+    updated_release_date = input(
+        "Enter the updated movie release date in YYYY-MM-DD format: "
+    )
+    query = "UPDATE Movies SET movie_name = %s, movie_description = %s, release_date = %s WHERE movie_id = %s"
+    values = (
+        updated_title,
+        updated_description,
+        datetime.strptime(updated_release_date, "%Y-%m-%d"),
+        movie_id_to_update,
+    )
+    mycursor.execute(query, values)
+    mydb.commit()
+
+    # Displaying updated movies table
+    os.system("cls")
+    mycursor.execute("SELECT * FROM Movies")
+    updatedMoviesList = mycursor.fetchall()
+    print("Movie ID | Movie Title | Movie Description | Release Date")
+    for updatedMovie in updatedMoviesList:
+        printLine()
+        print(
+            str(updatedMovie[0])
+            + "|"
+            + updatedMovie[1]
+            + "|"
+            + updatedMovie[2]
+            + "|"
+            + updatedMovie[3].strftime("%Y-%m-%d")
+        )
+    printLine()
+    mycursor.close()
 
 
 def displayMainMenu():
@@ -154,6 +283,7 @@ def run():
     elif n == 3:
         os.system("cls")
         print(" — — — Thank You — — -")
+        return
     else:
         # os.system("cls")
         run()
@@ -161,36 +291,84 @@ def run():
     if not adminLoggedIn:
         # User is logged in
         displayUserMainMenu()
-        # n = int(input("Enter option : "))
-        # if n == 1:
-        #     os.system("cls")  # For Windows
-        #     userLogin()
-        # elif n == 2:
-        #     os.system("cls")
-        #     adminLogin()
-        # elif n == 3:
-        #     os.system("cls")
-        #     print(" — — — Thank You — — -")
-        # else:
-        #     # os.system("cls")
-        #     run()
+        n = int(input("Enter option : "))
+        if n == 1:
+            os.system("cls")  # For Windows
+            getAllMovieTheaters()
+        elif n == 2:
+            os.system("cls")
+            # insert function here
+        elif n == 3:
+            os.system("cls")
+            deleteTheaterByID()
+        elif n == 4:
+            os.system("cls")
+            # insert function here
+        elif n == 5:
+            os.system("cls")
+            # insert function here
+        elif n == 6:
+            os.system("cls")
+            # insert function here
+        elif n == 7:
+            os.system("cls")
+            # insert function here
+        elif n == 8:
+            os.system("cls")
+            # insert function here
+        elif n == 9:
+            os.system("cls")
+            # insert function here
+        elif n == 10:
+            os.system("cls")
+            # insert function here
+        elif n == 11:
+            os.system("cls")
+            print(" — — — Thank You — — -")
+        else:
+            # os.system("cls")
+            run()
 
     else:
         # Admin is logged in
         displayAdminMainMenu()
-        # n = int(input("Enter option : "))
-        # if n == 1:
-        #     os.system("cls")  # For Windows
-        #     userLogin()
-        # elif n == 2:
-        #     os.system("cls")
-        #     adminLogin()
-        # elif n == 3:
-        #     os.system("cls")
-        #     print(" — — — Thank You — — -")
-        # else:
-        #     # os.system("cls")
-        #     run()
+        n = int(input("Enter option : "))
+        if n == 1:
+            os.system("cls")  # For Windows
+            getAllMovieTheaters()
+        elif n == 2:
+            os.system("cls")
+            # insert function here
+        elif n == 3:
+            os.system("cls")
+            deleteTheaterByID()
+        elif n == 4:
+            os.system("cls")
+            # insert function here
+        elif n == 5:
+            os.system("cls")
+            addNewMovie()
+        elif n == 6:
+            os.system("cls")
+            updateMovieByID()
+        elif n == 7:
+            os.system("cls")
+            # insert function here
+        elif n == 8:
+            os.system("cls")
+            # insert function here
+        elif n == 9:
+            os.system("cls")
+            # insert function here
+        elif n == 10:
+            os.system("cls")
+            # insert function here
+        elif n == 11:
+            os.system("cls")
+            print(" — — — Thank You — — -")
+        else:
+            # os.system("cls")
+            run()
 
 
 def displayLogo():
