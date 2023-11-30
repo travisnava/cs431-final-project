@@ -230,7 +230,7 @@ def getAllMoviesAtSpecificTheaterSorted():
 
 
 
-    print('------ All Theaters ------\n')
+    
     sql = """SELECT M.movie_id, M.movie_name, M.release_date, S.screening_time
                 FROM Movies AS M
                 INNER JOIN Screenings AS S ON M.movie_id = S.movie_id
@@ -255,6 +255,57 @@ def getAllMoviesAtSpecificTheaterSorted():
     print('------ SUCCESS ------\n')
     exit()
 
+def getAllConcessions():
+    
+    mycursor = mydb.cursor()
+    
+    flag = True
+    while flag:
+
+        theaterName = input("Enter Theater Name: ")
+        
+
+        mycursor2 = mydb.cursor()
+        sql = "SELECT theater_id FROM MovieTheaters AS M WHERE M.theater_name = %s"
+        val = (theaterName,)
+        
+        mycursor2.execute(sql,val)
+        theaterID = mycursor2.fetchall()
+       
+        if theaterID:
+            theaterID = theaterID[0][0]
+            flag = False
+        else:
+            print("Incorrect Theater name. Try again.")
+            printLine()
+
+    
+
+    sql = """SELECT C.concession_id, C.snack_name, C.snack_description, C.snack_quantity
+            FROM Concessions AS C
+            INNER JOIN MovieTheaters AS T ON C.theater_id = T.theater_id
+            WHERE T.theater_id = %s
+
+        """
+ 
+    val = (theaterID,)
+    mycursor.execute(sql,val)
+    concessionsList = mycursor.fetchall()
+
+    print("------", theaterName, "------\n")
+    for concession in concessionsList:
+        
+        print("-----", concession[1], "-----")
+
+        
+       
+        print(" Description : ", concession[2])
+        print(" Quantity : ", concession[3])
+        
+
+
+    print('------ SUCCESS ------\n')
+    exit()
 
 def displayUserMainMenu():
     print("------- MENU -------")
