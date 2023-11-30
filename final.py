@@ -195,7 +195,7 @@ def getAllMoviesAtSpecificTheater():
         
         
         print(" MoiveID : ", movie[0])
-        print(" MovieName : ", movie[1])
+        print(" Movie Name : ", movie[1])
         
         print("\n")
 
@@ -307,6 +307,248 @@ def getAllConcessions():
     print('------ SUCCESS ------\n')
     exit()
 
+def getAllMovieRatings():
+    
+    flag = True
+    while flag:
+
+        userName = input("Enter User Name: ")
+        mycursor = mydb.cursor()
+        sql = """SELECT MR.username, MR.rating, M.movie_name
+                    FROM MovieRatings AS MR
+                    JOIN Movies AS M ON MR.movie_id = M.movie_id
+                    WHERE MR.username = %s
+            """
+    
+        val = (userName,)
+        mycursor.execute(sql,val)
+        movieRatingsList = mycursor.fetchall()
+        
+       
+        if movieRatingsList:
+            flag = False
+        else:
+            print("Incorrect User name. Try again.")
+            printLine()
+
+    
+
+
+    print("------", userName, "------\n")
+    for movieRating in movieRatingsList:
+        
+        
+        print(" Moive : ", movieRating[2])
+        print(" Rating : ", movieRating[1])
+        
+        print("\n")
+
+    print('------ SUCCESS ------\n')
+    exit()
+
+def getAllMoviesAtSpecificTheaterSorted():
+    
+    mycursor = mydb.cursor()
+    
+    flag = True
+    while flag:
+
+        theaterName = input("Enter Theater Name: ")
+        
+
+        mycursor2 = mydb.cursor()
+        sql = "SELECT theater_id FROM MovieTheaters AS M WHERE M.theater_name = %s"
+        val = (theaterName,)
+        
+        mycursor2.execute(sql,val)
+        theaterID = mycursor2.fetchall()
+       
+        if theaterID:
+            theaterID = theaterID[0][0]
+            flag = False
+        else:
+            print("Incorrect Theater name. Try again.")
+            printLine()
+
+    
+
+
+
+    
+    sql = """SELECT M.movie_id, M.movie_name, M.release_date, S.screening_time
+                FROM Movies AS M
+                INNER JOIN Screenings AS S ON M.movie_id = S.movie_id
+                INNER JOIN MovieTheaters AS T ON S.theater_id = T.theater_id
+                WHERE T.theater_id = %s
+                ORDER BY M.release_date DESC
+        """
+ 
+    val = (theaterID,)
+    mycursor.execute(sql,val)
+    movieList = mycursor.fetchall()
+
+    print(" -----", theaterName, "----- \n")
+    for movie in movieList:
+        
+        
+        print(" MoiveID : ", movie[0])
+        print(" Movie Name : ", movie[1])
+        
+        print("\n")
+
+    print('------ SUCCESS ------\n')
+    exit()
+
+
+def bookTicket():
+
+    mycursor = mydb.cursor()
+    
+    flag = True
+    while flag:
+
+        theaterName = input("Enter Theater Name: ")
+        
+
+        mycursor2 = mydb.cursor()
+        sql = "SELECT theater_id FROM MovieTheaters AS M WHERE M.theater_name = %s"
+        val = (theaterName,)
+        
+        mycursor2.execute(sql,val)
+        theaterID = mycursor2.fetchall()
+       
+        if theaterID:
+            theaterID = theaterID[0][0]
+            flag = False
+        else:
+            print("Incorrect Theater name. Try again.")
+            printLine()
+
+    
+    print('------ Avaiable Screenings ------\n')
+
+    sql = "SELECT * FROM Screenings WHERE theater_id = %s"
+    val = (theaterID,)
+    mycursor.execute(sql,val)
+    screeningList = mycursor.fetchall()
+
+    i = 1
+    for screening in screeningList:
+        print('------ Screening', i ,' ------\n')
+        mycursor3 = mydb.cursor()
+        sql = "SELECT movie_name FROM Movies AS M WHERE M.movie_id = %s"
+        val = (screening[2],)
+        
+        mycursor3.execute(sql,val)
+        movie = mycursor.fetchall()
+
+        print("Movie: ", movie[0][0])
+        print("Movie Screening Time : ", screening[1])
+        
+        print("\n")
+        i +=1
+
+    screeningNum = int(input('Enter the screening number you want to book: '))
+
+
+
+    mycursor4 = mydb.cursor()
+    sql = "INSERT INTO Bookings (username,booking_screening_id, booking_time) VALUES (%s,%s,%s)"
+    val = (currentUser[0][0], screeningList[screeningNum-1][0],screeningList[screeningNum-1][1])
+    mycursor4.execute(sql,val)
+    mydb.commit()
+
+    print('------ SUCCESS ------\n')
+    exit()
+
+
+
+def deleteBooking():
+    
+    mycursor = mydb.cursor()
+    print('------ All Bookings ------\n')
+    sql = "SELECT * FROM Bookings WHERE username = %s"
+    val = (currentUser[0][0],)
+    mycursor.execute(sql,val)
+    bookingsList = mycursor.fetchall()
+   
+    
+
+    i = 1
+    for booking in bookingsList:
+        mycursor2 = mydb.cursor()
+        sql = """SELECT M.movie_name, T.theater_name, S.screening_time
+                FROM Bookings AS B
+                INNER JOIN Screenings AS S ON S.screening_id = B.booking_screening_id
+                INNER JOIN Movies AS M ON M.movie_id = S.movie_id
+                INNER JOIN MovieTheaters AS T ON T.theater_id = S.theater_id
+                WHERE B.booking_id = %s;
+        """
+ 
+        val = (booking[0],)
+        mycursor2.execute(sql,val)
+        movieBookingList = mycursor2.fetchall()
+ 
+        
+        print(" -----Booking:", i, "-----")
+
+        
+        print(" Movie : ", movieBookingList[0][0])
+        print(" Theater : ", movieBookingList[0][1])
+        print(" Time : ", movieBookingList[0][2])
+        
+        print("\n")
+        i+=1
+
+    deleteID = int(input('Enter the booking number you want to drop: '))
+
+    mycursor3 = mydb.cursor()
+    sql = "DELETE FROM Bookings WHERE booking_id= %s"
+    val = (bookingsList[deleteID-1][0],)
+    mycursor3.execute(sql,val)
+    mydb.commit()
+    
+
+    print('------ SUCCESS ------\n')
+    exit()
+
+def ratingMovies():
+    
+    mycursor = mydb.cursor()
+    print('------ All Movies ------\n')
+    mycursor.execute("SELECT * FROM Movies")
+    movieList = mycursor.fetchall()
+
+    i = 1
+    for movie in movieList:
+        
+        print(" -----Movie:", i, "-----")
+
+        
+        print(" Movie Name : ", movie[1])
+        print(" Description : ", movie[2])
+        print(" Release Date : ", movie[3])
+        
+        print("\n")
+
+        i +=1
+
+    movieNum = int(input('Enter the movie number you want to rate: '))
+    rating = int(input('Enter the rating you want to give this movie: '))
+
+
+
+    mycursor2 = mydb.cursor()
+    sql = "INSERT INTO MovieRatings (username, movie_id, rating) VALUES (%s,%s,%s)"
+    val = (currentUser[0][0], movieList[movieNum-1][0],rating)
+    mycursor2.execute(sql,val)
+    mydb.commit()
+
+    print('------ SUCCESS ------\n')
+    exit()
+
+
+
 def displayUserMainMenu():
     print("------- MENU -------")
     print("  1. View all movie theaters")
@@ -387,8 +629,16 @@ def run():
         elif n == 4:
             getAllMoviesAtSpecificTheaterSorted()
         #     os.system("cls")
+        elif n == 6:
+            bookTicket()
+        elif n == 7:
+            deleteBooking()
         elif n == 8:
-            getAllMoviesAtSpecificTheaterSorted()
+            getAllConcessions()
+        elif n == 9:
+            getAllMovieRatings()
+        elif n == 10:
+            ratingMovies()
         #     print(" — — — Thank You — — -")
         # else:
         #     # os.system("cls")
