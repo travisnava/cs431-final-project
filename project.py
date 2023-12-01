@@ -121,7 +121,7 @@ def displayUserMainMenu():
         "  3. View a list of all movies now playing at a movie theater sorted by release date descending"
     )
     print(
-        "  4. View a list of movies with the highest average ratings, along with the theaters where they are currently playing"
+        "  4. Get more information about a specific movie, including things like ratings, the cast, or theaters now playing this movie"
     )
     print(
         "  5. Buy a ticket for a movie screening"
@@ -699,6 +699,66 @@ def deleteBooking():
     exit()
 
 
+def getSpecificDetailsAboutMovie():
+    mycursor = mydb.cursor()
+    print("------ All Movies ------\n")
+    mycursor.execute("SELECT * FROM Movies")
+    movieList = mycursor.fetchall()
+
+    i = 1
+    for movie in movieList:
+        print(" -----Movie:", i, "-----")
+
+        print(" Movie Name: ", movie[1])
+        print(" Description: ", movie[2])
+        print(" Release Date: ", movie[3])
+
+        print("\n")
+
+        i += 1
+
+    movieNum = int(input("Enter the movie number you want to see more details about: "))
+
+    os.system("cls")
+    mycursor2 = mydb.cursor()
+    sql = """SELECT M.movie_name, T.theater_name, MR.rating, MR.rating_id, A.firstName, A.lastName
+                FROM MovieRatings AS MR
+                JOIN Movies AS M ON MR.movie_id = M.movie_id
+                JOIN Screenings AS S ON MR.movie_id = S.movie_id
+                JOIN MovieTheaters AS T ON S.theater_id = T.theater_id
+                JOIN Actors AS A ON A.movie_id = M.movie_id
+                WHERE M.movie_id = %s
+                """
+    val = (movieList[movieNum - 1][0],)
+    mycursor2.execute(sql, val)
+    detailList = mycursor2.fetchall()
+
+    ratings = dict()
+    actors = []
+    theaters = []
+    for detail in detailList:
+        # ratingID is key, and the rating itself is the value stored
+        if detail[3] not in ratings:
+            ratings[detail[3]] = detail[2]
+
+        if detail[4] + " " + detail[5] not in actors:
+            actors.append(detail[4] + " " + detail[5])
+
+        if detail[1] not in theaters:
+            theaters.append(detail[1])
+
+    print("------ Movie:", detailList[0][0], " -----")
+
+    print(
+        " Average Rating: ",
+        "{:.2f}".format(sum(list(ratings.values())) / len(list(ratings.values()))),
+    )
+    print(" Actors in the Movie: ", ", ".join(actors))
+    print(" Theaters Screening the Movie: ", ", ".join(theaters))
+
+    exit()
+
+
 def displayMainMenu():
     print("------- MENU -------")
     print("  1. User login")
@@ -739,7 +799,7 @@ def run():
             getAllMoviesAtSpecificTheaterSorted()
         elif n == 4:
             os.system("cls")
-            # insert function here
+            getSpecificDetailsAboutMovie()
         elif n == 5:
             os.system("cls")
             # insert function here
