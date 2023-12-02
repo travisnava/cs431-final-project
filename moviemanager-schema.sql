@@ -3,7 +3,6 @@ CREATE DATABASE sampleDB;
 USE sampleDB;
 
 
-
  CREATE TABLE Customers (
 	username VARCHAR(50) NOT NULL,
 	password VARCHAR(100) NOT NULL,
@@ -41,6 +40,7 @@ CREATE TABLE Screenings (
             screening_time DATETIME NOT NULL,
             movie_id INT NOT NULL,
             theater_id INT NOT NULL,
+            capacity INT NOT NULL,
             PRIMARY KEY (screening_id, screening_time),
             FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE,
 			FOREIGN KEY (theater_id) REFERENCES MovieTheaters(theater_id) ON DELETE CASCADE
@@ -57,14 +57,14 @@ CREATE TABLE Bookings (
     PRIMARY KEY (booking_id),
     FOREIGN KEY (username) REFERENCES Customers(username) ON DELETE CASCADE,
     FOREIGN KEY (booking_screening_id) REFERENCES Screenings(screening_id) ON DELETE CASCADE,
-    FOREIGN KEY (booking_time) REFERENCES Screenings(screening_time) ON UPDATE CASCADE
+    FOREIGN KEY (booking_time) REFERENCES Screenings(screening_time) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE MovieRatings (
     rating_id INT AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL,
     movie_id INT NOT NULL,
-    rating INT NOT NULL,
+    rating INT CHECK (rating >= 1 AND rating <= 5) NOT NULL,
     PRIMARY KEY (rating_id, username, movie_id),
     FOREIGN KEY (username) REFERENCES Customers(username) ON DELETE CASCADE,
     FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE
@@ -76,20 +76,19 @@ CREATE TABLE Concessions (
     snack_quantity INT NOT NULL,
     theater_id INT NOT NULL,
     PRIMARY KEY (concession_id, theater_id),
-    FOREIGN KEY (theater_id) REFERENCES MovieTheaters(theater_id)
+    FOREIGN KEY (theater_id) REFERENCES MovieTheaters(theater_id) ON DELETE CASCADE
 );
-CREATE TABLE PromotionalDiscounts (
-    promo_id INT AUTO_INCREMENT,
-    promo_description VARCHAR(250) NOT NULL,
-    discount DECIMAL(3,2) NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
-    discounted_theater_id INT NOT NULL,
-    PRIMARY KEY (promo_id),
-	FOREIGN KEY (discounted_theater_id) REFERENCES MovieTheaters(theater_id)
-	ON DELETE CASCADE
-        );
 
+        
+CREATE TABLE Actors (
+    firstName VARCHAR(250) NOT NULL,
+    lastName VARCHAR(250) NOT NULL,
+    movie_id INT NOT NULL,
+    birthYear INT NOT NULL,
+    PRIMARY KEY (firstName,lastName, birthYear),
+    FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE
+);
+        
 INSERT INTO Customers (`username`,`password`,`location`) VALUES 
    ('Briar245','tuMls&+ch3guwihoFrep','New York City'),
    ('OptimusPr1m3','*+Truy&WlxidR&M10RuV','Seattle'),
@@ -124,11 +123,11 @@ INSERT INTO Movies(`movie_id`,`movie_name`,`movie_description`, `release_date`) 
 		and unexpected twists in the interconnected lives of various characters",'1994-10-05');
    
 INSERT INTO Screenings VALUES 
-	(1,'2023-12-05 20:00:00',2,3),
-	(2,'2023-12-05 22:00:00',4,1),
-	(3,'2023-12-04 18:45:00',5,1),
-	(4,'2023-12-08 19:00:00',1,4),
-	(5,'2023-12-03 21:30:00',5,2);
+	(1,'2023-12-05 20:00:00',2,3,2),
+	(2,'2023-12-05 22:00:00',4,1,3),
+	(3,'2023-12-04 18:45:00',5,1,100),
+	(4,'2023-12-08 19:00:00',1,4,75),
+	(5,'2023-12-03 21:30:00',3,2,50);
    
 
 INSERT INTO Bookings(`booking_id`,`username`,`booking_screening_id`, `booking_time`) VALUES 
@@ -136,7 +135,8 @@ INSERT INTO Bookings(`booking_id`,`username`,`booking_screening_id`, `booking_ti
    (2, 'GodCr1Tic2345', 4, '2023-12-08 19:00:00'),
    (3, 'JoeMamma456', 5, '2023-12-03 21:30:00'),
    (4, 'Shivana24143', 1,'2023-12-05 20:00:00'),
-   (5, 'GodCr1Tic2345', 5, '2023-12-03 21:30:00');
+   (5, 'GodCr1Tic2345', 5, '2023-12-03 21:30:00'),
+   (6, 'OptimusPr1m3', 1, '2023-12-05 20:00:00');
 
 INSERT INTO MovieRatings(`rating_id`,`username`,`movie_id`, `rating`) VALUES 
    (1, 'JoeMamma456', 3, 3),
@@ -146,23 +146,25 @@ INSERT INTO MovieRatings(`rating_id`,`username`,`movie_id`, `rating`) VALUES
    (5, 'GodCr1Tic2345', 5, 5);
    
 
-   INSERT INTO Concessions(`concession_id`,`snack_name`,`snack_description`, `snack_quantity`, `theater_id`) VALUES 
-   (1, 'Popcorn', 'Classic buttered popcorn', 100, 1),
-   (2, 'Soda', 'Large cola with ice', 75, 1),
-   (3, 'Candy', 'Assorted candy pack', 50, 1),
-   (4, 'Nachos', 'Cheesy nachos with salsa', 60, 2),
-   (5, 'Ice Cream', 'Vanilla and chocolate swirl', 40, 2);
+INSERT INTO Concessions(`concession_id`,`snack_name`,`snack_description`, `snack_quantity`, `theater_id`) VALUES 
+(1, 'Popcorn', 'Classic buttered popcorn', 100, 1),
+(2, 'Soda', 'Large cola with ice', 75, 1),
+(3, 'Candy', 'Assorted candy pack', 50, 1),
+(4, 'Nachos', 'Cheesy nachos with salsa', 60, 2),
+(5, 'Ice Cream', 'Vanilla and chocolate swirl', 40, 2);
 
-INSERT INTO PromotionalDiscounts(`promo_id`,`promo_description`,`discount`, `start_date`, `end_date`, `discounted_theater_id`) VALUES 
-   (1, 'Early Bird Special', '0.15', '2023-01-15', '2023-02-15', 1),
-   (2, 'Family Movie Night', '0.20', '2023-03-01', '2023-03-31', 2),
-   (3, 'Student Discount', '0.10', '2023-02-01', '2023-02-28', 3),
-   (4, 'Date Night Package', '0.25', '2023-01-20', '2023-02-20', 1),
-   (5, 'Senior Citizen Discount', '0.15', '2023-02-10', '2023-03-10', 2);
 
 INSERT INTO MovieTheaters(`theater_name`,`theater_location`,`max_seating_capacity`) VALUES 
 	('Cinemark','Dickson City', 420);
 
-SELECT * FROM Customers;
-SELECT * FROM MovieTheaters;
+
+INSERT INTO Actors VALUES 
+	('Johnny','Cash',1,1990),
+	('Jerry','Dias',1,1987),
+	('Predro','Pascal',2,1985),
+	('Dua','Lipa',1,1995),
+	('Mark','Grayson',4,1999),
+	('Chris','Pratt',5,2001);
+    
+
 
