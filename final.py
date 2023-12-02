@@ -154,6 +154,7 @@ def searchMovieTheater():
     print('------ SUCCESS ------\n')
     exit()
 
+#delete this function eventually
 def getAllMoviesAtSpecificTheater():
     
     mycursor = mydb.cursor()
@@ -449,16 +450,36 @@ def bookTicket():
         i +=1
 
     screeningNum = int(input('Enter the screening number you want to book: '))
+    #mydb.autocommit = True
+
+    
+    
+    mycursor = mydb.cursor()
+    sql = "SELECT capacity FROM Screenings WHERE screening_id = %s"
+    val = (screeningList[screeningNum-1][0],)
+    mycursor.execute(sql,val)
+    capacity = mycursor.fetchall()
 
 
+    mycursor2 = mydb.cursor()
+    sql = "SELECT COUNT(booking_id) FROM Bookings WHERE booking_screening_id = %s"
+    val = (screeningList[screeningNum-1][0],)
+    mycursor.execute(sql,val)
+    amountBookings = mycursor.fetchall()
 
-    mycursor4 = mydb.cursor()
-    sql = "INSERT INTO Bookings (username,booking_screening_id, booking_time) VALUES (%s,%s,%s)"
-    val = (currentUser[0][0], screeningList[screeningNum-1][0],screeningList[screeningNum-1][1])
-    mycursor4.execute(sql,val)
-    mydb.commit()
+    print(capacity, amountBookings)
+    mycursor.execute("START TRANSACTION")
+    if (int(capacity[0][0]) - int(amountBookings[0][0])) > 0:
+        mycursor = mydb.cursor()
+        sql = "INSERT INTO Bookings (username,booking_screening_id, booking_time) VALUES (%s,%s,%s)"
+        val = (currentUser[0][0], screeningList[screeningNum-1][0],screeningList[screeningNum-1][1])
+        mycursor.execute(sql,val)
+        mydb.commit()
+    else:
+        print("No seats left for the Screening")
+        mydb.rollback()
 
-    print('------ SUCCESS ------\n')
+        
     exit()
 
 
@@ -612,6 +633,7 @@ def getSpecificDetailsAboutMovie():
     print('------ SUCCESS ------\n')
     exit()
 
+
 def displayUserMainMenu():
     print("------- MENU -------")
     print("  1. View all movie theaters")
@@ -687,11 +709,12 @@ def run():
             searchMovieTheater()
         elif n == 3:
         #     os.system("cls")
-           
             getAllMoviesAtSpecificTheater()
         elif n == 4:
             getAllMoviesAtSpecificTheaterSorted()
         #     os.system("cls")
+        elif n == 5:
+            getSpecificDetailsAboutMovie()
         elif n == 6:
             bookTicket()
         elif n == 7:
