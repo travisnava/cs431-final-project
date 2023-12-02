@@ -12,81 +12,81 @@ USE sampleDB;
 );
 
 CREATE TABLE Administrators (
-            username VARCHAR(50) NOT NULL,
-            password VARCHAR(100) NOT NULL,
-            date_joined DATE NOT NULL,
-            PRIMARY KEY (username)
+   username VARCHAR(50) NOT NULL,
+   password VARCHAR(100) NOT NULL,
+   date_joined DATE NOT NULL,
+   PRIMARY KEY (username)
 );
 
 CREATE TABLE MovieTheaters (
-            theater_id INT AUTO_INCREMENT,
-            theater_name VARCHAR(100) NOT NULL,
-            theater_location VARCHAR(150) NOT NULL,
-            max_seating_capacity INT NOT NULL,
-            PRIMARY KEY (theater_id)
+   theater_id INT AUTO_INCREMENT,
+   theater_name VARCHAR(100) NOT NULL,
+   theater_location VARCHAR(150) NOT NULL,
+   max_seating_capacity INT NOT NULL,
+   PRIMARY KEY (theater_id)
 );
 
 CREATE TABLE Movies (
-            movie_id INT AUTO_INCREMENT,
-            movie_name VARCHAR(100) NOT NULL,
-            movie_description VARCHAR(500) NOT NULL,
-            release_date DATE NOT NULL,
-            PRIMARY KEY (movie_id)
+   movie_id INT AUTO_INCREMENT,
+   movie_name VARCHAR(100) NOT NULL,
+   movie_description VARCHAR(500) NOT NULL,
+   release_date DATE NOT NULL,
+   PRIMARY KEY (movie_id)
 );
 
 
 CREATE TABLE Screenings (
-            screening_id INT AUTO_INCREMENT,
-            screening_time DATETIME NOT NULL,
-            movie_id INT NOT NULL,
-            theater_id INT NOT NULL,
-            capacity INT NOT NULL,
-            PRIMARY KEY (screening_id, screening_time),
-            FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE,
-			FOREIGN KEY (theater_id) REFERENCES MovieTheaters(theater_id) ON DELETE CASCADE
+   screening_id INT AUTO_INCREMENT,
+   screening_time DATETIME NOT NULL,
+   movie_id INT NOT NULL,
+   theater_id INT NOT NULL,
+   capacity INT NOT NULL,
+   PRIMARY KEY (screening_id, screening_time),
+   FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE,
+   FOREIGN KEY (theater_id) REFERENCES MovieTheaters(theater_id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_time
 ON Screenings (screening_time);
 
 CREATE TABLE Bookings (
-    booking_id INT AUTO_INCREMENT,
-    username VARCHAR(50) NOT NULL,
-    booking_screening_id INT NOT NULL,
-    booking_time DATETIME NOT NULL,
-    PRIMARY KEY (booking_id),
-    FOREIGN KEY (username) REFERENCES Customers(username) ON DELETE CASCADE,
-    FOREIGN KEY (booking_screening_id) REFERENCES Screenings(screening_id) ON DELETE CASCADE,
-    FOREIGN KEY (booking_time) REFERENCES Screenings(screening_time) ON UPDATE CASCADE ON DELETE CASCADE
+   booking_id INT AUTO_INCREMENT,
+   username VARCHAR(50) NOT NULL,
+   booking_screening_id INT NOT NULL,
+   booking_time DATETIME NOT NULL,
+   PRIMARY KEY (booking_id),
+   FOREIGN KEY (username) REFERENCES Customers(username) ON DELETE CASCADE,
+   FOREIGN KEY (booking_screening_id) REFERENCES Screenings(screening_id) ON DELETE CASCADE,
+   FOREIGN KEY (booking_time) REFERENCES Screenings(screening_time) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE MovieRatings (
-    rating_id INT AUTO_INCREMENT,
-    username VARCHAR(50) NOT NULL,
-    movie_id INT NOT NULL,
-    rating INT CHECK (rating >= 1 AND rating <= 5) NOT NULL,
-    PRIMARY KEY (rating_id, username, movie_id),
-    FOREIGN KEY (username) REFERENCES Customers(username) ON DELETE CASCADE,
-    FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE
+   rating_id INT AUTO_INCREMENT,
+   username VARCHAR(50) NOT NULL,
+   movie_id INT NOT NULL,
+   rating INT CHECK (rating >= 1 AND rating <= 5) NOT NULL,
+   PRIMARY KEY (rating_id, username, movie_id),
+   FOREIGN KEY (username) REFERENCES Customers(username) ON DELETE CASCADE,
+   FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE
 );
 CREATE TABLE Concessions (
-    concession_id INT AUTO_INCREMENT,
-    snack_name VARCHAR(100) NOT NULL,
-    snack_description VARCHAR(250) NOT NULL,
-    snack_quantity INT NOT NULL,
-    theater_id INT NOT NULL,
-    PRIMARY KEY (concession_id, theater_id),
-    FOREIGN KEY (theater_id) REFERENCES MovieTheaters(theater_id) ON DELETE CASCADE
+   concession_id INT AUTO_INCREMENT,
+   snack_name VARCHAR(100) NOT NULL,
+   snack_description VARCHAR(250) NOT NULL,
+   snack_quantity INT NOT NULL,
+   theater_id INT NOT NULL,
+   PRIMARY KEY (concession_id, theater_id),
+   FOREIGN KEY (theater_id) REFERENCES MovieTheaters(theater_id) ON DELETE CASCADE
 );
 
         
 CREATE TABLE Actors (
-    firstName VARCHAR(250) NOT NULL,
-    lastName VARCHAR(250) NOT NULL,
-    movie_id INT NOT NULL,
-    birthYear INT NOT NULL,
-    PRIMARY KEY (firstName,lastName, birthYear),
-    FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE
+   firstName VARCHAR(250) NOT NULL,
+   lastName VARCHAR(250) NOT NULL,
+   movie_id INT NOT NULL,
+   birthYear INT NOT NULL,
+   PRIMARY KEY (firstName,lastName, birthYear),
+   FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE
 );
         
 INSERT INTO Customers (`username`,`password`,`location`) VALUES 
@@ -147,11 +147,11 @@ INSERT INTO MovieRatings(`rating_id`,`username`,`movie_id`, `rating`) VALUES
    
 
 INSERT INTO Concessions(`concession_id`,`snack_name`,`snack_description`, `snack_quantity`, `theater_id`) VALUES 
-(1, 'Popcorn', 'Classic buttered popcorn', 100, 1),
-(2, 'Soda', 'Large cola with ice', 75, 1),
-(3, 'Candy', 'Assorted candy pack', 50, 1),
-(4, 'Nachos', 'Cheesy nachos with salsa', 60, 2),
-(5, 'Ice Cream', 'Vanilla and chocolate swirl', 40, 2);
+   (1, 'Popcorn', 'Classic buttered popcorn', 100, 1),
+   (2, 'Soda', 'Large cola with ice', 75, 1),
+   (3, 'Candy', 'Assorted candy pack', 50, 1),
+   (4, 'Nachos', 'Cheesy nachos with salsa', 60, 2),
+   (5, 'Ice Cream', 'Vanilla and chocolate swirl', 40, 2);
 
 
 INSERT INTO MovieTheaters(`theater_name`,`theater_location`,`max_seating_capacity`) VALUES 
