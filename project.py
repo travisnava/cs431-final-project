@@ -759,6 +759,109 @@ def getSpecificDetailsAboutMovie():
     exit()
 
 
+def bookTicket():
+    mycursor = mydb.cursor()
+
+    flag = True
+    while flag:
+        theaterName = input("Enter Theater Name: ")
+
+        mycursor2 = mydb.cursor()
+        sql = "SELECT theater_id FROM MovieTheaters AS M WHERE M.theater_name = %s"
+        val = (theaterName,)
+
+        mycursor2.execute(sql, val)
+        theaterID = mycursor2.fetchall()
+
+        if theaterID:
+            theaterID = theaterID[0][0]
+            flag = False
+        else:
+            print("Incorrect Theater name. Try again.")
+            printLine()
+
+    print("------ Avaiable Screenings ------\n")
+
+    sql = "SELECT * FROM Screenings WHERE theater_id = %s"
+    val = (theaterID,)
+    mycursor.execute(sql, val)
+    screeningList = mycursor.fetchall()
+
+    i = 1
+    for screening in screeningList:
+        print("------ Screening", i, " ------\n")
+        mycursor3 = mydb.cursor()
+        sql = "SELECT movie_name FROM Movies AS M WHERE M.movie_id = %s"
+        val = (screening[2],)
+
+        mycursor3.execute(sql, val)
+        movie = mycursor.fetchall()
+
+        print("Movie: ", movie[0][0])
+        print("Movie Screening Time : ", screening[1])
+
+        print("\n")
+        i += 1
+
+    screeningNum = int(input("Enter the screening number you want to book: "))
+
+    mycursor = mydb.cursor()
+    sql = "SELECT capacity FROM Screenings WHERE screening_id = %s"
+    val = (screeningList[screeningNum - 1][0],)
+    mycursor.execute(sql, val)
+    capacity = mycursor.fetchall()
+
+    mycursor2 = mydb.cursor()
+    sql = "SELECT COUNT(booking_id) FROM Bookings WHERE booking_screening_id = %s"
+    val = (screeningList[screeningNum - 1][0],)
+    mycursor.execute(sql, val)
+    amountBookings = mycursor.fetchall()
+
+    # print(capacity, amountBookings)
+    mycursor.execute("START TRANSACTION")
+    if (int(capacity[0][0]) - int(amountBookings[0][0])) > 0:
+        mycursor = mydb.cursor()
+        sql = "INSERT INTO Bookings (username, booking_screening_id, booking_time) VALUES (%s,%s,%s)"
+        val = (
+            currentUser[0][0],
+            screeningList[screeningNum - 1][0],
+            screeningList[screeningNum - 1][1],
+        )
+        mycursor.execute(sql, val)
+        mydb.commit()
+
+        mycursor3 = mydb.cursor()
+        sql = "SELECT movie_name FROM Movies AS M WHERE M.movie_id = %s"
+        val = (screeningList[screeningNum - 1][2],)
+        mycursor3.execute(sql, val)
+        movie = mycursor3.fetchall()
+
+        mycursor5 = mydb.cursor()
+        sql = "SELECT theater_name FROM MovieTheaters AS T WHERE T.theater_id = %s"
+        val = (screeningList[screeningNum - 1][3],)
+        mycursor5.execute(sql, val)
+        theaterName = mycursor5.fetchall()
+
+        print(
+            green_code
+            + "Success! Enjoy your booking for "
+            + '"'
+            + movie[0][0]
+            + '"'
+            + " at "
+            + theaterName[0][0]
+            + " for the "
+            + screeningList[screeningNum - 1][1].strftime("%Y-%m-%d %H:%M")
+            + " screening."
+            + reset_code
+        )
+    else:
+        print(red_code + "No seats left for this screening." + reset_code)
+        mydb.rollback()
+
+    exit()
+
+
 def displayMainMenu():
     print("------- MENU -------")
     print("  1. User login")
@@ -802,7 +905,7 @@ def run():
             getSpecificDetailsAboutMovie()
         elif n == 5:
             os.system("cls")
-            # insert function here
+            bookTicket()
         elif n == 6:
             os.system("cls")
             deleteBooking()
@@ -814,7 +917,7 @@ def run():
             getAllMovieRatingsByUsername()
         elif n == 9:
             os.system("cls")
-            createRatingForSeenMovie()  # Needs to be edited
+            createRatingForSeenMovie()  # Needs minor edits for error handling
         elif n == 10:
             os.system("cls")
             print(" — — — Thank You — — -")
