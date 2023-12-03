@@ -5,6 +5,16 @@ from datetime import date
 from datetime import datetime
 
 
+### To-do
+  # error handling on several functions
+  # go through every function, make sure output is nice
+  # user manual
+  # make sure repo has latest code
+  # comment functions
+  # write a descriptive readme?
+  # other documents for stage 3 submission
+  # add 431W as a collaborator
+
 mydb = mysql.connector.connect(host="localhost", user="root", passwd="clashroyale5%")
 
 # global var for currently logged in User, changed upon login
@@ -389,11 +399,13 @@ def createNewMovieScreening():
     )
     newScreeningTime = input("Enter a screening time in the YYYY-MM-DD HH:MM format: ")
     formattedNewScreeningTime = datetime.strptime(newScreeningTime, "%Y-%m-%d %H:%M")
-    insertQuery = "INSERT INTO Screenings (screening_time, movie_id, theater_id) VALUES (%s, %s, %s)"
+    newScreeningCapacity = input("How many seats are you alloting for this screening: ")
+    insertQuery = "INSERT INTO Screenings (screening_time, movie_id, theater_id, capacity) VALUES (%s, %s, %s, %s)"
     newScreeningValues = (
         formattedNewScreeningTime,
         newScreeningMovieID,
         screeningForTheaterID,
+        newScreeningCapacity
     )
     mycursor = mydb.cursor()
     mycursor.execute(insertQuery, newScreeningValues)
@@ -698,7 +710,7 @@ def deleteBooking():
 
     exit()
 
-
+#Error when the movie doesn't have ratings or actors??
 def getSpecificDetailsAboutMovie():
     mycursor = mydb.cursor()
     print("------ All Movies ------\n")
