@@ -5,16 +5,7 @@ from datetime import date
 from datetime import datetime
 
 
-### To-do
-  # error handling on several functions
-  # go through every function, make sure output is nice
-  # user manual
-  # make sure repo has latest code
-  # comment functions
-  # write a descriptive readme?
-  # other documents for stage 3 submission
-  # add 431W as a collaborator
-
+# connecting to mysql local instance
 mydb = mysql.connector.connect(host="localhost", user="root", passwd="clashroyale5%")
 
 # global var for currently logged in User, changed upon login
@@ -133,20 +124,15 @@ def displayUserMainMenu():
     print(
         "  4. Get more information about a specific movie, including things like ratings, the cast, or theaters now playing this movie"
     )
-    print(
-        "  5. Buy a ticket for a movie screening"
-    )  # Transaction that uses rollback, not sure how to implement... query #12 from Stage 3, replaces query #4 from Stage 3
+    print("  5. Buy a ticket for a movie screening")
     print("  6. Cancel a booking for a movie screening")
     print("  7. Search for concessions at a movie theater")
     print("  8. View a list of all movie ratings given by a specific customer")
-    print(
-        "  9. Leave a rating for a movie that you've seen"
-    )  # The SQL needs to be edited for this...
+    print("  9. Leave a rating for a movie that you've seen")
     print("  10. Exit")
     printLine()
 
 
-# Should admins have all the same menu options as users?
 def displayAdminMainMenu():
     print("------- MENU -------")
     print("  1. View all movie theaters")
@@ -405,7 +391,7 @@ def createNewMovieScreening():
         formattedNewScreeningTime,
         newScreeningMovieID,
         screeningForTheaterID,
-        newScreeningCapacity
+        newScreeningCapacity,
     )
     mycursor = mydb.cursor()
     mycursor.execute(insertQuery, newScreeningValues)
@@ -579,7 +565,7 @@ def getAllMovieRatingsByUsername():
     exit()
 
 
-def createRatingForSeenMovie():  # Needs to be edited so that it only shows movies that users have seen, (i.e the booking must be in the past, go through screening id to find which movie the booking is for), need to change dummy data to reflect this requirement
+def createRatingForSeenMovie():
     mycursor = mydb.cursor()
     print("------ Previously Seen Movies ------\n")
 
@@ -710,7 +696,8 @@ def deleteBooking():
 
     exit()
 
-#Error when the movie doesn't have ratings or actors??
+
+# Error when the movie doesn't have ratings or actors??
 def getSpecificDetailsAboutMovie():
     mycursor = mydb.cursor()
     print("------ All Movies ------\n")
@@ -884,7 +871,18 @@ def displayMainMenu():
 
 def run():
     displayMainMenu()
-    n = int(input("Enter option : "))
+    validOption = False
+    while not validOption:
+        n = input("Enter option : ")
+        try:
+            n = int(n)
+            if n > 0 and n <= 3:
+                validOption = True
+            else: 
+                print(red_code + "Invalid option, try again." + reset_code)
+        except ValueError:
+            print(red_code + "Invalid option, try again." + reset_code)
+
     if n == 1:
         os.system("cls")  # For Windows
         userLogin()
@@ -902,9 +900,21 @@ def run():
     if not adminLoggedIn:
         # User is logged in
         displayUserMainMenu()
-        n = int(input("Enter option : "))
+
+        validOption = False
+        while not validOption:
+            n = input("Enter option : ")
+            try:
+                n = int(n)
+                if n > 0 and n <= 10:
+                    validOption = True
+                else: 
+                    print(red_code + "Invalid option, try again." + reset_code)
+            except ValueError:
+                print(red_code + "Invalid option, try again." + reset_code)
+
         if n == 1:
-            os.system("cls")  # For Windows
+            os.system("cls")
             getAllMovieTheaters()
         elif n == 2:
             os.system("cls")
@@ -929,7 +939,7 @@ def run():
             getAllMovieRatingsByUsername()
         elif n == 9:
             os.system("cls")
-            createRatingForSeenMovie()  # Needs minor edits for error handling
+            createRatingForSeenMovie()
         elif n == 10:
             os.system("cls")
             print(" — — — Thank You — — -")
@@ -940,9 +950,22 @@ def run():
     else:
         # Admin is logged in
         displayAdminMainMenu()
-        n = int(input("Enter option : "))
+
+        validOption = False
+        while not validOption:
+            n = input("Enter option : ")
+            try:
+                n = int(n)
+                if n > 0 and n <= 11:
+                    validOption = True
+                else: 
+                    print(red_code + "Invalid option, try again." + reset_code)
+            except ValueError:
+                print(red_code + "Invalid option, try again." + reset_code)
+
+
         if n == 1:
-            os.system("cls")  # For Windows
+            os.system("cls")
             getAllMovieTheaters()
         elif n == 2:
             os.system("cls")
