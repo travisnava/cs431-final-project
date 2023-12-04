@@ -670,7 +670,7 @@ def deleteBooking():
     i = 1
     for booking in bookingsList:
         mycursor2 = mydb.cursor()
-        sql = """SELECT M.movie_name, T.theater_name, S.screening_time
+        sql = """SELECT M.movie_name, T.theater_name, S.screening_time, M.movie_id
                 FROM Bookings AS B
                 INNER JOIN Screenings AS S ON S.screening_id = B.booking_screening_id
                 INNER JOIN Movies AS M ON M.movie_id = S.movie_id
@@ -681,7 +681,6 @@ def deleteBooking():
         val = (booking[0],)
         mycursor2.execute(sql, val)
         movieBookingList = mycursor2.fetchall()
-
         print(" -----Booking:", i, "-----")
 
         print(" Movie: ", movieBookingList[0][0])
@@ -691,7 +690,21 @@ def deleteBooking():
         print("\n")
         i += 1
 
-    deleteID = int(input("Enter the booking number you want to drop: "))
+    validOption = False
+    while not validOption:
+        try:
+            deleteID = int(input("Enter the booking number you want to drop: "))
+            if (
+                deleteID >= 1
+                and deleteID < i
+            ):
+                validOption = True
+            else:
+                print(red_code + "Invalid option, try again." + reset_code)
+        except ValueError:
+            print(red_code + "Invalid option, try again." + reset_code)
+
+
 
     mycursor3 = mydb.cursor()
     sql = "DELETE FROM Bookings WHERE booking_id= %s"
