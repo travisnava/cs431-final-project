@@ -175,9 +175,20 @@ def deleteTheaterByID():
         printLine()
         print(str(theater[0]) + "|" + theater[1])
     printLine()
-    deleteThisTheater = int(
-        input("\nEnter the theater id of the movie theater you wish to delete: ")
-    )
+
+    while not validOption:
+        validOption = False
+        try:
+            deleteThisTheater = int(
+            input("\nEnter the theater id of the movie theater you wish to delete: ")
+        )
+            if deleteThisTheater > theaterList[0][0] and deleteThisTheater <= theaterList[0][len(theaterList) - 1]:
+                validOption = True
+            else: 
+                print(red_code + "Invalid option, try again." + reset_code)
+        except ValueError:
+            print(red_code + "Invalid option, try again." + reset_code)
+
     query = "DELETE FROM MovieTheaters WHERE theater_id = %s"
     mycursor.execute(query, (deleteThisTheater,))
     os.system("cls")
