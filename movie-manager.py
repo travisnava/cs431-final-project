@@ -631,6 +631,11 @@ def deleteBooking():
     mycursor.execute(sql, val)
     bookingsList = mycursor.fetchall()
 
+
+    if not bookingsList:
+        print("There are no bookings to delete")
+        exit()
+
     i = 1
     for booking in bookingsList:
         mycursor2 = mydb.cursor()
@@ -655,7 +660,6 @@ def deleteBooking():
         print("\n")
         i += 1
 
-    # If bookingsList is empty, should not prompt them to drop a booking number and should display "No bookings for (username), and then call exit()?"
     deleteID = int(input("Enter the booking number you want to drop: "))
 
     mycursor3 = mydb.cursor()
