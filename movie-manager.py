@@ -176,15 +176,20 @@ def deleteTheaterByID():
         print(str(theater[0]) + "|" + theater[1])
     printLine()
 
+    validOption = False
     while not validOption:
-        validOption = False
         try:
             deleteThisTheater = int(
-            input("\nEnter the theater id of the movie theater you wish to delete: ")
-        )
-            if deleteThisTheater > theaterList[0][0] and deleteThisTheater <= theaterList[0][len(theaterList) - 1]:
+                input(
+                    "\nEnter the theater id of the movie theater you wish to delete: "
+                )
+            )
+            if (
+                deleteThisTheater >= theaterList[0][0]
+                and deleteThisTheater <= theaterList[len(theaterList) - 1][0]
+            ):
                 validOption = True
-            else: 
+            else:
                 print(red_code + "Invalid option, try again." + reset_code)
         except ValueError:
             print(red_code + "Invalid option, try again." + reset_code)
@@ -302,7 +307,23 @@ def deleteMovieByID():
         printLine()
         print(str(movie[0]) + "|" + movie[1])
     printLine()
-    deleteThisMovie = int(input("\nEnter the id of the movie you wish to delete: "))
+
+    validOption = False
+    while not validOption:
+        try:
+            deleteThisMovie = int(
+                input("\nEnter the id of the movie you wish to delete: ")
+            )
+            if (
+                deleteThisMovie >= movieList[0][0]
+                and deleteThisMovie <= movieList[len(movieList) - 1][0]
+            ):
+                validOption = True
+            else:
+                print(red_code + "Invalid option, try again." + reset_code)
+        except ValueError:
+            print(red_code + "Invalid option, try again." + reset_code)
+
     query = "DELETE FROM Movies WHERE movie_id = %s"
     mycursor.execute(query, (deleteThisMovie,))
     os.system("cls")
@@ -642,7 +663,6 @@ def deleteBooking():
     mycursor.execute(sql, val)
     bookingsList = mycursor.fetchall()
 
-
     if not bookingsList:
         print("There are no bookings to delete")
         exit()
@@ -893,7 +913,7 @@ def run():
             n = int(n)
             if n > 0 and n <= 3:
                 validOption = True
-            else: 
+            else:
                 print(red_code + "Invalid option, try again." + reset_code)
         except ValueError:
             print(red_code + "Invalid option, try again." + reset_code)
@@ -923,7 +943,7 @@ def run():
                 n = int(n)
                 if n > 0 and n <= 10:
                     validOption = True
-                else: 
+                else:
                     print(red_code + "Invalid option, try again." + reset_code)
             except ValueError:
                 print(red_code + "Invalid option, try again." + reset_code)
@@ -973,11 +993,10 @@ def run():
                 n = int(n)
                 if n > 0 and n <= 11:
                     validOption = True
-                else: 
+                else:
                     print(red_code + "Invalid option, try again." + reset_code)
             except ValueError:
                 print(red_code + "Invalid option, try again." + reset_code)
-
 
         if n == 1:
             os.system("cls")
